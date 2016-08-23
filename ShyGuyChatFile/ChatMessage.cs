@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace ShyGuy.ChatFile
 {
+    /// <summary>
+    /// The type of the payload in a chat message
+    /// </summary>
     public enum ChatMessageType
     {
         Unknown,
@@ -17,6 +20,9 @@ namespace ShyGuy.ChatFile
         Unblock,
     }
 
+    /// <summary>
+    /// Indicates whether the message was sent and whether it was ACKed by the server
+    /// </summary>
     public enum ChatMessageDeliveryStatus
     {
         NotStarted,
@@ -38,6 +44,9 @@ namespace ShyGuy.ChatFile
         XmppError,
     }
 
+    /// <summary>
+    /// Represents a single chat message in a conversation
+    /// </summary>
     public class ChatMessage
     {
         /// <summary>A unique ID for this message used by the XMPP server.

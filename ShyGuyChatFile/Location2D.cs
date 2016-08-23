@@ -6,9 +6,19 @@ using System.Threading.Tasks;
 
 namespace ShyGuy.ChatFile
 {
+    /// <summary>
+    /// Represents a position on the surface of the Earth
+    /// </summary>
     public struct Location2D : IEquatable<Location2D>
     {
+        /// <summary>
+        /// Latitude, in degrees, from -90 to +90
+        /// </summary>
         public double Latitude { get; }
+
+        /// <summary>
+        /// Longitude, in degrees, from -90 to +90
+        /// </summary>
         public double Longitude { get; }
 
         public Location2D(double latitude, double longitude)

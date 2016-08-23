@@ -9,22 +9,22 @@ namespace ShyGuy.ChatFile
     internal static class FileFormat
     {
         /// <summary>First dword of the file - used to identify the file is indeed a ShyGuy chat archive</summary>
-        public static readonly uint _magic = 0xf09f91ac;
+        public static readonly uint MagicHeader = 0xf09f91ac;
 
         /// <summary>Current version - increment to indicate the presence of backwards-compatible changes</summary>
-        public static readonly uint _fileVersion = 1;
+        public static readonly uint FileVersion = 1;
 
         /// <summary>Last dword of the file - used to ensure the file wasn't truncated</summary>
-        public static readonly uint _eof = 0x53687943;
+        public static readonly uint EndOfFileMarker = 0x53687943;
 
         /// <summary>Sentinel value to indicate when the message ID cannot be stored in a UUID</summary>
-        public static readonly Guid _extendedMessageId = new Guid(_magic, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        public static readonly Guid ExtendedMessageId = new Guid(MagicHeader, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
         /// <summary>Size of the fixed header for each message</summary>
-        public static readonly uint _headerSize = 16 + 2 + 4 + 4;
+        public static readonly uint HeaderSize = 16 + 2 + 4 + 4;
 
         /// <summary>Bias for the timestamp</summary>
-        public static readonly DateTime _epoch = DateTime.FromBinary(-8589708388854775808L); // 2009/01/01 in UTC
+        public static readonly DateTime DateEpoch = DateTime.FromBinary(-8589708388854775808L); // 2009/01/01 in UTC
 
         [Flags]
         public enum Flags : ushort

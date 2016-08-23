@@ -9,6 +9,12 @@ namespace ShyGuy.ChatFile
 {
     public static class Serializer
     {
+        /// <summary>
+        /// Given an account-counterparty tuple, creates a filename suitable for a chat history archive
+        /// </summary>
+        /// <param name="accountId">The user's account ID</param>
+        /// <param name="counterpartyId">The counterparty's account ID</param>
+        /// <returns>A filename with extension</returns>
         public static string CreateFilename(string accountId, string counterpartyId)
         {
             if (accountId == null)
@@ -19,6 +25,11 @@ namespace ShyGuy.ChatFile
             return $"g_{accountId}~{counterpartyId}.shyguy-buddy";
         }
 
+        /// <summary>
+        /// Converts some chat messages into the ShyGuy chat file format
+        /// </summary>
+        /// <param name="messages">Zero or more messages to convert</param>
+        /// <returns>An opaque binary stream that should be written to the chat file</returns>
         public static Stream Serialize(IEnumerable<ChatMessage> messages)
         {
             if (messages == null)
@@ -31,8 +42,8 @@ namespace ShyGuy.ChatFile
                 using (var trailerStream = new MemoryStream())
                 using (var trailer = new BinaryWriter(trailerStream, Encoding.UTF8, leaveOpen: true))
                 {
-                    header.Write(FileFormat._magic);
-                    header.Write(FileFormat._fileVersion);
+                    header.Write(FileFormat.MagicHeader);
+                    header.Write(FileFormat.FileVersion);
                     header.Write((uint)messages.Count());
                     header.Write(0u); // reserved
                     header.Write(0u); // reserved
@@ -49,7 +60,7 @@ namespace ShyGuy.ChatFile
                         trailerStream.CopyTo(headerStream);
                     }
 
-                    header.Write(FileFormat._eof);
+                    header.Write(FileFormat.EndOfFileMarker);
                     header.Flush();
                 }
 
@@ -72,13 +83,13 @@ namespace ShyGuy.ChatFile
             var flags = default(FileFormat.Flags);
 
             Guid idAsGuid;
-            if (Guid.TryParse(message.MessageId, out idAsGuid) && idAsGuid != FileFormat._extendedMessageId)
+            if (Guid.TryParse(message.MessageId, out idAsGuid) && idAsGuid != FileFormat.ExtendedMessageId)
             {
                 header.Write(idAsGuid.ToByteArray());
             }
             else
             {
-                header.Write(FileFormat._extendedMessageId.ToByteArray());
+                header.Write(FileFormat.ExtendedMessageId.ToByteArray());
                 flags |= FileFormat.Flags.HasExtendedId;
                 trailer.Write(message.MessageId);
             }
@@ -151,7 +162,7 @@ namespace ShyGuy.ChatFile
             if (timestamp.Ticks == 0)
                 return 0;
 
-            var secondsSinceEpoch = (timestamp.Ticks - FileFormat._epoch.Ticks) / 10000000.0;
+            var secondsSinceEpoch = (timestamp.Ticks - FileFormat.DateEpoch.Ticks) / 10000000.0;
             if (secondsSinceEpoch < 1)
                 secondsSinceEpoch = 1;
 

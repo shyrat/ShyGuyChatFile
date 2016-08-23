@@ -19,6 +19,14 @@ namespace ShyGuy.ChatFile
         }
 
         private static Regex _filenameParser = new Regex(@"^g_(\d+)~(\d+).shyguy-buddy$", RegexOptions.Compiled);
+
+        /// <summary>
+        /// Given the filename of a ShyGuy chat file, extracts the user's accountId and the counterparty's accountId
+        /// </summary>
+        /// <param name="filename">A relative or absolute filename</param>
+        /// <param name="accountId">Returns the user's account ID</param>
+        /// <param name="counterpartyId">Returns the counterparty's account ID</param>
+        /// <returns>true if successful, false otherise</returns>
         public static bool ParseFilename(string filename, out string accountId, out string counterpartyId)
         {
             if (filename == null)
@@ -37,6 +45,13 @@ namespace ShyGuy.ChatFile
             return true;
         }
 
+        /// <summary>
+        /// Reads a ShyGuy chat file and extracts all the chat messages from it
+        /// </summary>
+        /// <param name="accountId">The user's account ID</param>
+        /// <param name="counterpartyId">The counterparty's account ID</param>
+        /// <param name="archiveContents">A stream containing the ShyGuy chat file's contents</param>
+        /// <returns>The extracted chat messages</returns>
         public static IEnumerable<ChatMessage> Deserialize(string accountId, string counterpartyId, Stream archiveContents)
         {
             if (accountId == null)
@@ -62,8 +77,8 @@ namespace ShyGuy.ChatFile
             using (var headerStream = new MemoryStream(array, writable: false))
             using (var reader = new BinaryReader(headerStream, Encoding.UTF8, leaveOpen: true))
             {
-                if (FileFormat._magic != reader.ReadUInt32())
-                    throw new ShyGuyFileFormatException($"File is not a ShyGuy chat archive. Expected file header 0x{FileFormat._magic:x}.");
+                if (FileFormat.MagicHeader != reader.ReadUInt32())
+                    throw new ShyGuyFileFormatException($"File is not a ShyGuy chat archive. Expected file header 0x{FileFormat.MagicHeader:x}.");
 
                 var version = reader.ReadUInt32();
 
@@ -73,7 +88,7 @@ namespace ShyGuy.ChatFile
                 var reserved2 = reader.ReadUInt32();
 
                 var result = new ChatMessage[numMessages];
-                var trailerOffset = (int)((uint)headerStream.Position + FileFormat._headerSize * numMessages);
+                var trailerOffset = (int)((uint)headerStream.Position + FileFormat.HeaderSize * numMessages);
 
                 using (var trailerStream = new MemoryStream(array, trailerOffset, array.Length - trailerOffset, writable: false))
                 using (var trailer = new BinaryReader(trailerStream, Encoding.UTF8, leaveOpen: true))
@@ -160,7 +175,7 @@ namespace ShyGuy.ChatFile
             if (value == 0)
                 return default(DateTime);
 
-            var ticks = (long)value * 10000000 + FileFormat._epoch.Ticks;
+            var ticks = (long)value * 10000000 + FileFormat.DateEpoch.Ticks;
 
             // Force messages to be ordered correctly
             if (previousTicks == ticks)
